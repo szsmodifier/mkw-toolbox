@@ -15,6 +15,7 @@ namespace BillysToolbox.Editors
         }
         private ImageList Icons;
         private Dictionary<List<string>, int> FileTypes;
+        private int CurrentFolder;
 
         public U8EditorForm(U8 fileInstance, bool compressed = true)
         {
@@ -95,42 +96,63 @@ namespace BillysToolbox.Editors
 
             byte[] buffer = FileInstance.Write();
             if (Compressed) buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Fast);
-            File.WriteAllBytes(FileInstance.Filename, buffer);
-        }
+            try { 
+                File.WriteAllBytes(FileInstance.Filename, buffer);
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+}
 
         public void SaveAs()
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = Path.GetFileNameWithoutExtension(FileInstance.Filename);
-            sfd.Filter = "SZS Files (*.szs)|*.szs|ARC Files (*.arc)|*arc";
-
-            if (sfd.ShowDialog() == DialogResult.OK)
+            using (SaveFileDialog sfd = new SaveFileDialog())
             {
-                byte[] buffer = FileInstance.Write();
-                if (sfd.FilterIndex == 1)
-                    buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Fast);
+                sfd.FileName = Path.GetFileNameWithoutExtension(FileInstance.Filename);
+                sfd.Filter = "SZS Files (*.szs)|*.szs|ARC Files (*.arc)|*arc";
 
-                File.WriteAllBytes(sfd.FileName, buffer);
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    byte[] buffer = FileInstance.Write();
+                    if (sfd.FilterIndex == 1)
+                        buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Fast);
+                    try
+                    {
+                        File.WriteAllBytes(sfd.FileName, buffer);
+                    }
+                    catch(Exception e)
+                    {
+                        MessageBox.Show(e.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
         }
 
-        private int GetFolderInView()
+        private ListViewItem CreateListViewItem(int itemData)
         {
-            if (Nodes.Count < 2)
-                return 0;
-
-            foreach (ListViewItem item in fileListView.Items)
+            ListViewItem item = new ListViewItem(Nodes[itemData].Name);
+            item.Tag = itemData;
+            if (Nodes[itemData].Type == U8._Node.NodeType.Directory)
             {
-                if (Nodes[(int)item.Tag].Type == U8._Node.NodeType.File)
+                item.ImageIndex = 0;
+                //item.SubItems.Add("...");
+            }
+            else
+            {
+                item.SubItems.Add(Nodes[itemData].DataSize.ToString());
+                item.ImageIndex = 1;
+                string extension = Path.GetExtension(item.Text);
+                foreach (KeyValuePair<List<string>, int> type in FileTypes)
                 {
-                    return FileInstance.GetNodeFolder((int)item.Tag);
-                }
-                else if (Nodes[(int)item.Tag].Type == U8._Node.NodeType.Directory)
-                {
-                    return (int)Nodes[(int)item.Tag].DataOffset;
+                    if (extension.ToLower().CompareTo(type.Key[0]) == 0)
+                    {
+                        item.SubItems.Add(type.Key[1]);
+                        item.ImageIndex = type.Value;
+                    }
                 }
             }
-            return 0;
+            return item;
         }
 
         private void PopulateListView(int index)
@@ -138,6 +160,9 @@ namespace BillysToolbox.Editors
             if (Nodes[index].Type != U8._Node.NodeType.Directory)
                 return;
 
+            CurrentFolder = index;
+
+            fileListView.BeginUpdate();
             fileListView.Items.Clear();
 
             // Add back option
@@ -153,33 +178,15 @@ namespace BillysToolbox.Editors
             int[] children = FileInstance.GetChildren(index);
             foreach (int i in children)
             {
-                ListViewItem item = new ListViewItem(Nodes[i].Name);
-                item.Tag = i;
-                if (Nodes[i].Type == U8._Node.NodeType.Directory)
-                {
-                    item.ImageIndex = 0;
-                    item.SubItems.Add("...");
-                }
-                else
-                {
-                    item.SubItems.Add(Nodes[i].DataSize.ToString());
-                    item.ImageIndex = 1;
-                    string extension = Path.GetExtension(item.Text);
-                    foreach (KeyValuePair<List<string>, int> type in FileTypes)
-                    {
-                        if (extension.ToLower().CompareTo(type.Key[0]) == 0)
-                        {
-                            item.SubItems.Add(type.Key[1]);
-                            item.ImageIndex = type.Value;
-                        }
-                    }
-                }
+                ListViewItem item = CreateListViewItem(i);
                 fileListView.Items.Add(item);
             }
 
             // Update label
             itemCountStatusLabel.Text = children.Length + " items |";
             selectionStatusLabel.Text = "";
+
+            fileListView.EndUpdate();
         }
 
         private void PopulateTree()
@@ -204,11 +211,15 @@ namespace BillysToolbox.Editors
                 }
                 else
                 {
-                    int treeNodeIndex = 0;
-                    for (; (int)treeNodes[treeNodeIndex].Tag != nodeParent; treeNodeIndex++) { }
-                    treeNodes[treeNodeIndex].Nodes.Add(node);
+                    TreeNode parentNode = treeNodes.FirstOrDefault(n => (uint)(int)n.Tag == nodeParent);
+                    if (parentNode != null)
+                    {
+                        parentNode.Nodes.Add(node);
+                    }
                 }
             }
+
+            folderTree.ExpandAll();
         }
 
         private void U8EditorForm_Load(object sender, EventArgs e)
@@ -231,11 +242,16 @@ namespace BillysToolbox.Editors
             // Change text
             Text += " - " + Path.GetFileName(FileInstance.Filename);
 
-            // Populate tree
+            PopulateListView(0);
             PopulateTree();
 
-            // Populate list view
-            PopulateListView(0);
+            Application.Idle += ForceExpandOnIdle;
+        }
+        
+        private void ForceExpandOnIdle(object? sender, EventArgs e)
+        {
+            Application.Idle -= ForceExpandOnIdle;
+            folderTree.ExpandAll();
         }
 
         private void fileListView_ItemActivate(object sender, EventArgs e)
@@ -322,9 +338,16 @@ namespace BillysToolbox.Editors
             ListView listView = fileListView;
             if (listView.SelectedItems.Count == 0) return;
 
-            for (int i = listView.SelectedItems.Count - 1; i >= 0; i--)
+            List<ListViewItem> itemsToDelete = new List<ListViewItem>();
+            foreach (ListViewItem item in listView.SelectedItems)
             {
-                ListViewItem item = listView.SelectedItems[i];
+                itemsToDelete.Add(item);
+            }
+
+            itemsToDelete.Sort((a, b) => ((int)b.Tag).CompareTo((int)a.Tag));
+
+            foreach (ListViewItem item in itemsToDelete)
+            {
                 if (Nodes[(int)item.Tag].Type == U8._Node.NodeType.File)
                 {
                     FileInstance.RemoveFile((int)item.Tag);
@@ -335,7 +358,7 @@ namespace BillysToolbox.Editors
                 }
             }
 
-            PopulateListView(GetFolderInView());
+            PopulateListView(CurrentFolder);
             PopulateTree();
         }
 
@@ -346,7 +369,7 @@ namespace BillysToolbox.Editors
             {
                 return;
             }
-            else if(listView.SelectedItems.Count == 1)
+            else if (listView.SelectedItems.Count == 1)
             {
                 ListViewItem item = listView.SelectedItems[0];
                 if (Nodes[(int)item.Tag].Data == null) return;
@@ -359,7 +382,13 @@ namespace BillysToolbox.Editors
 
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    File.WriteAllBytes(sfd.FileName, Nodes[(int)item.Tag].Data);
+                    try { 
+                        File.WriteAllBytes(sfd.FileName, Nodes[(int)item.Tag].Data);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
             else
@@ -371,7 +400,13 @@ namespace BillysToolbox.Editors
                     foreach (ListViewItem item in listView.SelectedItems)
                     {
                         string savePath = Path.Combine(dialog.FileName, Path.GetFileName(Nodes[(int)item.Tag].Name));
-                        File.WriteAllBytes(savePath, Nodes[(int)item.Tag].Data);
+                        try { 
+                            File.WriteAllBytes(savePath, Nodes[(int)item.Tag].Data);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
             }
@@ -391,8 +426,14 @@ namespace BillysToolbox.Editors
             {
                 foreach (string filename in openFileDialog.FileNames)
                 {
-                    byte[] buffer = File.ReadAllBytes(filename);
-                    FileInstance.AddFile((int)item.Tag, buffer, filename);
+                    try { 
+                        byte[] buffer = File.ReadAllBytes(filename);
+                        FileInstance.AddFile((int)item.Tag, buffer, filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
 
                 PopulateListView(FileInstance.GetNodeFolder((int)item.Tag));
@@ -452,6 +493,9 @@ namespace BillysToolbox.Editors
             if (listView.SelectedItems.Count == 0) return;
 
             ((MainForm)MdiParent).Clipboard.Clear();
+
+            List<int> indicesToCut = new List<int>();
+
             foreach (ListViewItem item in listView.SelectedItems)
             {
                 if (Nodes[(int)item.Tag].Type == U8._Node.NodeType.File)
@@ -461,20 +505,19 @@ namespace BillysToolbox.Editors
                         Nodes[(int)item.Tag].Data
                     );
                     ((MainForm)MdiParent).Clipboard.Insert(0, clipboardItem);
+
+                    indicesToCut.Add((int)item.Tag);
                 }
             }
 
-            int start = (int)listView.SelectedItems[fileListView.SelectedItems.Count - 1].Tag;
-            int end = (int)listView.SelectedItems[0].Tag;
-            int nodeFolder = FileInstance.GetNodeFolder(end);
-            for (int i = start; i >= end; i--)
-            {
-                if (Nodes[i].Type == U8._Node.NodeType.Directory)
-                    continue;
+            indicesToCut.Sort((a, b) => b.CompareTo(a));
 
-                FileInstance.RemoveFile(i);
+            foreach (int index in indicesToCut)
+            {
+                FileInstance.RemoveFile(index);
             }
-            PopulateListView(nodeFolder);
+
+            PopulateListView(CurrentFolder);
         }
 
         private void folderDeleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -492,11 +535,22 @@ namespace BillysToolbox.Editors
             {
                 string extension = Path.GetExtension(Nodes[(int)item.Tag].Name);
                 string noDot = extension.Replace(".", "").ToUpper();
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = noDot + " Files (*" + extension + ")|*" + extension + "|All Files (*.*)|*.*";
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                {
+                    openFileDialog.Filter = noDot + " Files (*" + extension + ")|*" + extension + "|All Files (*.*)|*.*";
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                    Nodes[(int)item.Tag].Data = File.ReadAllBytes(openFileDialog.FileName);
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        try
+                        {
+                            Nodes[(int)item.Tag].Data = File.ReadAllBytes(openFileDialog.FileName);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
             }
         }
 
@@ -513,9 +567,15 @@ namespace BillysToolbox.Editors
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
                     string rootPath = Path.Combine(dialog.FileName, Nodes[(int)item.Tag].Name);
-                    Directory.CreateDirectory(rootPath);
-                    int[] children = FileInstance.GetChildren((int)item.Tag);
-                    folderExportHelper(children, rootPath);
+                    try { 
+                        Directory.CreateDirectory(rootPath);
+                        int[] children = FileInstance.GetChildren((int)item.Tag);
+                        folderExportHelper(children, rootPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
@@ -527,13 +587,25 @@ namespace BillysToolbox.Editors
                 if (Nodes[child].Type == U8._Node.NodeType.File)
                 {
                     string filePath = Path.Combine(path, Nodes[child].Name);
-                    File.WriteAllBytes(filePath, Nodes[child].Data);
+                    try { 
+                        File.WriteAllBytes(filePath, Nodes[child].Data);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
                 else if (Nodes[child].Type == U8._Node.NodeType.Directory)
                 {
                     string newPath = Path.Combine(path, Nodes[child].Name);
-                    Directory.CreateDirectory(newPath);
-                    folderExportHelper(FileInstance.GetChildren(child), newPath);
+                    try { 
+                        Directory.CreateDirectory(newPath);
+                        folderExportHelper(FileInstance.GetChildren(child), newPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
@@ -548,17 +620,25 @@ namespace BillysToolbox.Editors
             ListView listView = fileListView;
             if (listView.SelectedItems.Count != 0) return;
 
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = true;
-            ofd.Filter = "All Files (*.*)|*.*";
-
-            if (ofd.ShowDialog() == DialogResult.OK)
+            using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                foreach (string file in ofd.FileNames)
+                ofd.Multiselect = true;
+                ofd.Filter = "All Files (*.*)|*.*";
+
+                if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    byte[] buffer = File.ReadAllBytes(file);
-                    FileInstance.AddFile(GetFolderInView(), buffer, file);
-                    PopulateListView(GetFolderInView());
+                    foreach (string file in ofd.FileNames)
+                    {
+                        try { 
+                            byte[] buffer = File.ReadAllBytes(file);
+                            FileInstance.AddFile(CurrentFolder, buffer, file);
+                            PopulateListView(CurrentFolder);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
                 }
             }
         }
@@ -579,8 +659,8 @@ namespace BillysToolbox.Editors
             ListView listView = fileListView;
             if (listView.SelectedItems.Count != 0) return;
 
-            FileInstance.AddFolder(GetFolderInView(), "New Folder");
-            PopulateListView(GetFolderInView());
+            FileInstance.AddFolder(CurrentFolder, "New Folder");
+            PopulateListView(CurrentFolder);
             PopulateTree();
         }
     }

@@ -6,11 +6,11 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>bobomb.ico</ApplicationIcon>
+    <ApplicationIcon>king-bob-omb.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="bobomb.ico" />
+    <Content Include="king-bob-omb.ico" />
   </ItemGroup>
 
   <ItemGroup>
