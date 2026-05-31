@@ -179,7 +179,7 @@ namespace kartlib.Serial
                 reader.Position = (int)ImageHeader.DataAddress;
                 ImageData = reader.ReadBytes(sizeInBytes);
 
-                Image = Format.ToBitmap(ImageData, ImageHeader.Width, ImageHeader.Height);
+                Image = Format.ToBitmap(ImageData, ImageHeader.Width, ImageHeader.Height, PaletteData, PaletteHeader?.Format);
             }
         }
 
@@ -207,6 +207,96 @@ namespace kartlib.Serial
             finally
             {
                 reader.Close();
+            }
+        }
+
+        public static byte[] CreateTPL(byte[] rawPixelData, ushort width, ushort height, ImageFormatEnum format, byte[]? paletteData = null, TPL._PaletteHeader.PaletteFormat paletteFormat = TPL._PaletteHeader.PaletteFormat.RGB5A3)
+        {
+            uint fileHeaderSize = 12;
+            uint imageTableSize = 8;
+            uint imageHeaderSize = 36;
+            uint paletteHeaderSize = 12;
+
+            uint imageTableOffset = fileHeaderSize;
+            uint imageHeaderOffset = imageTableOffset + imageTableSize;
+
+            uint paletteHeaderOffset = 0;
+            uint paletteDataOffset = 0;
+            uint rawDataOffset = 0;
+
+            if (paletteData != null && paletteData.Length > 0)
+            {
+                paletteHeaderOffset = imageHeaderOffset + imageHeaderSize;
+                paletteDataOffset = paletteHeaderOffset + paletteHeaderSize;
+                rawDataOffset = paletteDataOffset + (uint)paletteData.Length;
+            }
+            else
+            {
+                rawDataOffset = imageHeaderOffset + imageHeaderSize;
+            }
+
+            uint padding = (32 - (rawDataOffset % 32)) % 32;
+            rawDataOffset += padding;
+
+            TPL._FileHeader fileHeader = new TPL._FileHeader();
+            fileHeader.Version = 0x0020AF30;
+            fileHeader.ImageCount = 1;
+            fileHeader.ImageTableOffset = imageTableOffset;
+
+            TPL._ImageTable table = new TPL._ImageTable();
+            table.ImageOffset = imageHeaderOffset;
+            table.PaletteOffset = paletteHeaderOffset;
+
+            TPL._ImageHeader header = new TPL._ImageHeader();
+            header.Height = height;
+            header.Width = width;
+            header.Format = format;
+            header.DataAddress = rawDataOffset;
+            header.WrapS = 0;
+            header.WrapT = 0;
+            header.MinFilter = 1;
+            header.MagFilter = 1;
+            header.LODBias = 0;
+            header.EdgeLODEnable = 0;
+            header.MinLOD = 0;
+            header.MaxLOD = 0;
+            header.Unpacked = 0;
+
+            TPL._PaletteHeader? pHeader = null;
+            if (paletteData != null && paletteData.Length > 0)
+            {
+                pHeader = new TPL._PaletteHeader();
+                pHeader.EntryCount = (ushort)(paletteData.Length / 2);
+                pHeader.Unpacked = 0;
+                pHeader.Reserved = 0;
+                pHeader.Format = paletteFormat;
+                pHeader.DataAddress = paletteDataOffset;
+            }
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                EndianWriter writer = new EndianWriter(ms, Endianness.BigEndian);
+
+                fileHeader.Write(writer);
+                table.Write(writer);
+                header.Write(writer);
+
+                if (pHeader != null && paletteData != null)
+                {
+                    pHeader.Write(writer);
+                    writer.WriteBytes(paletteData);
+                }
+
+                long currentPos = ms.Position;
+                long paddingNeeded = rawDataOffset - currentPos;
+                for (int i = 0; i < paddingNeeded; i++)
+                {
+                    writer.WriteByte(0);
+                }
+
+                writer.WriteBytes(rawPixelData);
+
+                return ms.ToArray();
             }
         }
     }

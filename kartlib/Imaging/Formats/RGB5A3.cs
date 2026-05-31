@@ -1,12 +1,15 @@
-﻿namespace kartlib.Imaging.Formats
+﻿using kartlib.Serial;
+
+namespace kartlib.Imaging.Formats
 {
     public class RGB5A3 : ImageFormat
     {
         public override int BitsPerPixel => 16;
         public override int BlockWidth   => 4;
         public override int BlockHeight  => 4;
+        public override byte[]? LastGeneratedPalette { get; protected set; }
 
-        protected override uint[] DecodePixels(byte[] buffer)
+        protected override uint[] DecodePixels(byte[] buffer, byte[]? paletteData = null, TPL._PaletteHeader.PaletteFormat? paletteFormat = null)
         {
             List<uint> pixels = new List<uint>();
             for(int i = 0; i < buffer.Length; i += 2)
@@ -33,6 +36,44 @@
                 pixels.Add(pixel);
             }
             return pixels.ToArray();
+        }
+
+        protected override byte[] EncodePixels(uint[] pixels, TPL._PaletteHeader.PaletteFormat? paletteFormat = null)
+        {
+            List<byte> buffer = new List<byte>(pixels.Length * 2);
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                uint p = pixels[i];
+
+                byte a = (byte)((p >> 24) & 0xFF);
+                byte r = (byte)((p >> 16) & 0xFF);
+                byte g = (byte)((p >> 8) & 0xFF);
+                byte b = (byte)(p & 0xFF);
+
+                ushort rgb5a3 = 0;
+
+                if (a >= 224)
+                {
+                    int r5 = r >> 3;
+                    int g5 = g >> 3;
+                    int b5 = b >> 3;
+                    rgb5a3 = (ushort)(0x8000 | (r5 << 10) | (g5 << 5) | b5);
+                }
+                else
+                {
+                    int a3 = a >> 5;
+                    int r4 = r >> 4;
+                    int g4 = g >> 4;
+                    int b4 = b >> 4;
+                    rgb5a3 = (ushort)((a3 << 12) | (r4 << 8) | (g4 << 4) | b4);
+                }
+
+                buffer.Add((byte)(rgb5a3 >> 8));
+                buffer.Add((byte)(rgb5a3 & 0xFF));
+            }
+
+            return buffer.ToArray();
         }
     }
 }

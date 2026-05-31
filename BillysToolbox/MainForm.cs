@@ -1,5 +1,7 @@
 using BillysToolbox.Editors;
 using BillysToolbox.Tools.ImageScaler;
+using kartlib.Imaging;
+using kartlib.Imaging.Formats;
 using kartlib.Serial;
 using System.Text;
 
@@ -173,6 +175,41 @@ namespace BillysToolbox
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        Bitmap btmp = new Bitmap(Image.FromFile(ofd.FileName));
+                        RGBA8 format = new RGBA8();
+                        byte[]? buffer = format.FromBitmap(btmp);
+
+                        byte[]? paletteBuffer = format.LastGeneratedPalette;
+
+                        byte[] tplBuffer = TPL.CreateTPL(buffer, (ushort)btmp.Width, (ushort)btmp.Height, ImageFormatEnum.RGBA8, paletteBuffer);
+
+                        using (SaveFileDialog sfd = new SaveFileDialog())
+                        {
+                            if (sfd.ShowDialog() == DialogResult.OK)
+                            {
+                                try
+                                {
+                                    File.WriteAllBytes(sfd.FileName, tplBuffer);
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
 
         private void bMMToolStripMenuItem_Click(object sender, EventArgs e)
