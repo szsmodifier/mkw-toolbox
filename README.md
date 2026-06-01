@@ -14,5 +14,6 @@ Wii file editor inspired by [Wexos's Toolbox](https://wiki.tockdom.com/wiki/Wexo
 | BRRES* | No | No |
 | BLIGHT | Yes | Yes |
 | BDOF | Yes | Yes |
+| TPL | Yes | Yes |
 
 \* Still under development
