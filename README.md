@@ -9,7 +9,7 @@ Wii file editor inspired by [Wexos's Toolbox](https://wiki.tockdom.com/wiki/Wexo
 | U8 | Yes | Yes |
 | SZS* | Yes | With no compression |
 | BMM | Yes | Yes |
-| KMP* | Yes | With limited capabilities |
+| KMP | Yes | Yes |
 | KCL | Yes | Yes |
 | BRRES* | No | No |
 | BLIGHT | Yes | Yes |
