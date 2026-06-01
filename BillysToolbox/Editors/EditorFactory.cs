@@ -1,4 +1,5 @@
 ﻿using kartlib.Serial;
+using System.Diagnostics;
 
 namespace BillysToolbox.Editors
 {
@@ -46,6 +47,9 @@ namespace BillysToolbox.Editors
                 case ".tpl":
                     TPL tpl = new TPL(buffer, fileName);
                     return new TPLViewerForm(tpl, parentInstance);
+                case ".breff":
+                    BREFF breff = new BREFF(buffer, fileName);
+                    return new BREFFEditorForm(breff, parentInstance);
                 default:
                     return null;
             }
