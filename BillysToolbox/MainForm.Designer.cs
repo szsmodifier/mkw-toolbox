@@ -41,6 +41,7 @@
             kMPToolStripMenuItem = new ToolStripMenuItem();
             kCLToolStripMenuItem = new ToolStripMenuItem();
             bMMToolStripMenuItem = new ToolStripMenuItem();
+            tPLToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
@@ -60,7 +61,6 @@
             openToolStripButton = new ToolStripButton();
             toolStripSeparator2 = new ToolStripSeparator();
             settingsToolStripButton = new ToolStripButton();
-            tPLToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             toolStrip1.SuspendLayout();
             SuspendLayout();
@@ -135,7 +135,6 @@
             // 
             // kMPToolStripMenuItem
             // 
-            kMPToolStripMenuItem.Enabled = false;
             kMPToolStripMenuItem.Image = Properties.Resources.kmp;
             kMPToolStripMenuItem.Name = "kMPToolStripMenuItem";
             kMPToolStripMenuItem.Size = new Size(184, 26);
@@ -157,6 +156,14 @@
             bMMToolStripMenuItem.Size = new Size(184, 26);
             bMMToolStripMenuItem.Text = "BMM";
             bMMToolStripMenuItem.Click += bMMToolStripMenuItem_Click;
+            // 
+            // tPLToolStripMenuItem
+            // 
+            tPLToolStripMenuItem.Image = Properties.Resources.Decal;
+            tPLToolStripMenuItem.Name = "tPLToolStripMenuItem";
+            tPLToolStripMenuItem.Size = new Size(184, 26);
+            tPLToolStripMenuItem.Text = "TPL";
+            tPLToolStripMenuItem.Click += tPLToolStripMenuItem_Click;
             // 
             // openToolStripMenuItem
             // 
@@ -307,14 +314,6 @@
             settingsToolStripButton.Name = "settingsToolStripButton";
             settingsToolStripButton.Size = new Size(24, 24);
             settingsToolStripButton.Text = "Settings";
-            // 
-            // tPLToolStripMenuItem
-            // 
-            tPLToolStripMenuItem.Image = Properties.Resources.Decal;
-            tPLToolStripMenuItem.Name = "tPLToolStripMenuItem";
-            tPLToolStripMenuItem.Size = new Size(184, 26);
-            tPLToolStripMenuItem.Text = "TPL";
-            tPLToolStripMenuItem.Click += tPLToolStripMenuItem_Click;
             // 
             // MainForm
             // 
