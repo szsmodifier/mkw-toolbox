@@ -2,18 +2,18 @@
 
 namespace BillysToolbox.Editors
 {
-    public partial class BDOFEditorForm : Form, IEditor
+    public partial class BTIEditorForm : Form, IEditor
     {
-        BDOF FileInstance;
+        BTI FileInstance;
         U8? ParentInstance;
 
-        public BDOFEditorForm(BDOF fileInstance)
+        public BTIEditorForm(BTI fileInstance)
         {
             FileInstance = fileInstance;
             InitializeComponent();
         }
 
-        public BDOFEditorForm(BDOF fileInstance, U8? parentInstance)
+        public BTIEditorForm(BTI fileInstance, U8? parentInstance)
         {
             FileInstance = fileInstance;
             ParentInstance = parentInstance;
@@ -24,7 +24,7 @@ namespace BillysToolbox.Editors
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.FileName = Path.GetFileNameWithoutExtension(FileInstance.Filename);
-            sfd.Filter = "BDOF Files (*.bdof)|*.bdof";
+            sfd.Filter = "BTI Files (*.bti,*.btiMat,*.btiEnv)|*.bti,*.btiMat,*.btiEnv";
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
@@ -55,9 +55,10 @@ namespace BillysToolbox.Editors
             }
         }
 
-        private void BDOFEditorForm_Load(object sender, EventArgs e)
+        private void BTIEditorForm_Load(object sender, EventArgs e)
         {
             propertyGrid1.SelectedObject = FileInstance;
+            pictureBox1.BackgroundImage = FileInstance.Image;
         }
     }
 }

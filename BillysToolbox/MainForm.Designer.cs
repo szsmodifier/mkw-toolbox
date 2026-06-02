@@ -48,10 +48,7 @@
             openToolStripMenuItem = new ToolStripMenuItem();
             saveToolStripMenuItem = new ToolStripMenuItem();
             saveAsToolStripMenuItem = new ToolStripMenuItem();
-            toolStripSeparator1 = new ToolStripSeparator();
-            settingsToolStripMenuItem = new ToolStripMenuItem();
             menuStrip = new MenuStrip();
-            windowToolStripMenuItem = new ToolStripMenuItem();
             toolsToolStripMenuItem = new ToolStripMenuItem();
             nImageScalerToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
@@ -62,15 +59,14 @@
             toolStripButton2 = new ToolStripButton();
             toolStripSeparator4 = new ToolStripSeparator();
             openToolStripButton = new ToolStripButton();
-            toolStripSeparator2 = new ToolStripSeparator();
-            settingsToolStripButton = new ToolStripButton();
+            bTIToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, saveToolStripMenuItem, saveAsToolStripMenuItem, toolStripSeparator1, settingsToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, saveToolStripMenuItem, saveAsToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -103,7 +99,7 @@
             // 
             bREFFToolStripMenuItem.Image = Properties.Resources.flame;
             bREFFToolStripMenuItem.Name = "bREFFToolStripMenuItem";
-            bREFFToolStripMenuItem.Size = new Size(184, 26);
+            bREFFToolStripMenuItem.Size = new Size(106, 22);
             bREFFToolStripMenuItem.Text = "BREFF";
             bREFFToolStripMenuItem.Click += bREFFToolStripMenuItem_Click;
             // 
@@ -111,13 +107,13 @@
             // 
             bREFTToolStripMenuItem.Image = Properties.Resources.sparkle;
             bREFTToolStripMenuItem.Name = "bREFTToolStripMenuItem";
-            bREFTToolStripMenuItem.Size = new Size(184, 26);
+            bREFTToolStripMenuItem.Size = new Size(106, 22);
             bREFTToolStripMenuItem.Text = "BREFT";
             bREFTToolStripMenuItem.Click += bREFTToolStripMenuItem_Click;
             // 
             // postEffectToolStripMenuItem
             // 
-            postEffectToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { bLIGHTToolStripMenuItem1, bDOFToolStripMenuItem1, bBLMToolStripMenuItem, bFGToolStripMenuItem, bLMAPToolStripMenuItem });
+            postEffectToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { bLIGHTToolStripMenuItem1, bDOFToolStripMenuItem1, bBLMToolStripMenuItem, bFGToolStripMenuItem, bLMAPToolStripMenuItem, bTIToolStripMenuItem });
             postEffectToolStripMenuItem.Image = Properties.Resources.camera;
             postEffectToolStripMenuItem.Name = "postEffectToolStripMenuItem";
             postEffectToolStripMenuItem.Size = new Size(184, 26);
@@ -127,7 +123,7 @@
             // 
             bLIGHTToolStripMenuItem1.Image = Properties.Resources.help;
             bLIGHTToolStripMenuItem1.Name = "bLIGHTToolStripMenuItem1";
-            bLIGHTToolStripMenuItem1.Size = new Size(113, 22);
+            bLIGHTToolStripMenuItem1.Size = new Size(184, 26);
             bLIGHTToolStripMenuItem1.Text = "BLIGHT";
             bLIGHTToolStripMenuItem1.Click += bLIGHTToolStripMenuItem1_Click;
             // 
@@ -135,7 +131,7 @@
             // 
             bDOFToolStripMenuItem1.Image = Properties.Resources.bdof;
             bDOFToolStripMenuItem1.Name = "bDOFToolStripMenuItem1";
-            bDOFToolStripMenuItem1.Size = new Size(113, 22);
+            bDOFToolStripMenuItem1.Size = new Size(184, 26);
             bDOFToolStripMenuItem1.Text = "BDOF";
             bDOFToolStripMenuItem1.Click += bDOFToolStripMenuItem1_Click;
             // 
@@ -143,21 +139,24 @@
             // 
             bBLMToolStripMenuItem.Image = Properties.Resources.bblm;
             bBLMToolStripMenuItem.Name = "bBLMToolStripMenuItem";
-            bBLMToolStripMenuItem.Size = new Size(113, 22);
+            bBLMToolStripMenuItem.Size = new Size(184, 26);
             bBLMToolStripMenuItem.Text = "BBLM";
+            bBLMToolStripMenuItem.Click += bBLMToolStripMenuItem_Click;
             // 
             // bFGToolStripMenuItem
             // 
             bFGToolStripMenuItem.Image = Properties.Resources.bfg;
             bFGToolStripMenuItem.Name = "bFGToolStripMenuItem";
-            bFGToolStripMenuItem.Size = new Size(113, 22);
+            bFGToolStripMenuItem.Size = new Size(184, 26);
             bFGToolStripMenuItem.Text = "BFG";
+            bFGToolStripMenuItem.Click += bFGToolStripMenuItem_Click;
             // 
             // bLMAPToolStripMenuItem
             // 
+            bLMAPToolStripMenuItem.Enabled = false;
             bLMAPToolStripMenuItem.Image = Properties.Resources.blmap;
             bLMAPToolStripMenuItem.Name = "bLMAPToolStripMenuItem";
-            bLMAPToolStripMenuItem.Size = new Size(113, 22);
+            bLMAPToolStripMenuItem.Size = new Size(184, 26);
             bLMAPToolStripMenuItem.Text = "BLMAP";
             // 
             // kMPToolStripMenuItem
@@ -216,34 +215,16 @@
             saveAsToolStripMenuItem.Text = "Save as...";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
             // 
-            // toolStripSeparator1
-            // 
-            toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(181, 6);
-            // 
-            // settingsToolStripMenuItem
-            // 
-            settingsToolStripMenuItem.Image = Properties.Resources.tool;
-            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(184, 26);
-            settingsToolStripMenuItem.Text = "Settings";
-            // 
             // menuStrip
             // 
             menuStrip.ImageScalingSize = new Size(20, 20);
             menuStrip.ImeMode = ImeMode.NoControl;
-            menuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, windowToolStripMenuItem, toolsToolStripMenuItem, aboutToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, toolsToolStripMenuItem, aboutToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Size = new Size(1237, 24);
             menuStrip.TabIndex = 1;
             menuStrip.Text = "menuStrip";
-            // 
-            // windowToolStripMenuItem
-            // 
-            windowToolStripMenuItem.Name = "windowToolStripMenuItem";
-            windowToolStripMenuItem.Size = new Size(63, 20);
-            windowToolStripMenuItem.Text = "Window";
             // 
             // toolsToolStripMenuItem
             // 
@@ -286,7 +267,7 @@
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(20, 20);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { saveToolStripButton, toolStripButton2, toolStripSeparator4, openToolStripButton, toolStripSeparator2, settingsToolStripButton });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { saveToolStripButton, toolStripButton2, toolStripSeparator4, openToolStripButton });
             toolStrip1.Location = new Point(0, 24);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1237, 27);
@@ -328,19 +309,13 @@
             openToolStripButton.Text = "Open...";
             openToolStripButton.Click += openToolStripButton_Click;
             // 
-            // toolStripSeparator2
+            // bTIToolStripMenuItem
             // 
-            toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(6, 27);
-            // 
-            // settingsToolStripButton
-            // 
-            settingsToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            settingsToolStripButton.Image = Properties.Resources.tool;
-            settingsToolStripButton.ImageTransparentColor = Color.Magenta;
-            settingsToolStripButton.Name = "settingsToolStripButton";
-            settingsToolStripButton.Size = new Size(24, 24);
-            settingsToolStripButton.Text = "Settings";
+            bTIToolStripMenuItem.Image = Properties.Resources.Decal;
+            bTIToolStripMenuItem.Name = "bTIToolStripMenuItem";
+            bTIToolStripMenuItem.Size = new Size(184, 26);
+            bTIToolStripMenuItem.Text = "BTI";
+            bTIToolStripMenuItem.Click += bTIToolStripMenuItem_Click;
             // 
             // MainForm
             // 
@@ -374,14 +349,9 @@
         private ToolStrip toolStrip1;
         private ToolStripButton saveToolStripButton;
         private ToolStripButton openToolStripButton;
-        private ToolStripMenuItem windowToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem1;
         private ToolStripMenuItem helpToolStripMenuItem;
-        private ToolStripSeparator toolStripSeparator1;
-        private ToolStripMenuItem settingsToolStripMenuItem;
-        private ToolStripSeparator toolStripSeparator2;
-        private ToolStripButton settingsToolStripButton;
         private ToolStripSplitButton toolStripSplitButton1;
         private ToolStripButton toolStripButton2;
         private ToolStripSeparator toolStripSeparator4;
@@ -392,7 +362,6 @@
         private ToolStripMenuItem bDOFToolStripMenuItem1;
         private ToolStripMenuItem bBLMToolStripMenuItem;
         private ToolStripMenuItem bFGToolStripMenuItem;
-        private ToolStripMenuItem bLMAPToolStripMenuItem;
         private ToolStripMenuItem bMMToolStripMenuItem;
         private ToolStripMenuItem kMPToolStripMenuItem;
         private ToolStripMenuItem toolsToolStripMenuItem;
@@ -401,5 +370,7 @@
         private ToolStripMenuItem particleEffectToolStripMenuItem;
         private ToolStripMenuItem bREFFToolStripMenuItem;
         private ToolStripMenuItem bREFTToolStripMenuItem;
+        private ToolStripMenuItem bLMAPToolStripMenuItem;
+        private ToolStripMenuItem bTIToolStripMenuItem;
     }
 }

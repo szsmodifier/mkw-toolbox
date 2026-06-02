@@ -53,6 +53,17 @@ namespace BillysToolbox.Editors
                 case ".breft":
                     BREFT breft = new BREFT(buffer, fileName);
                     return new BREFTEditorForm(breft, parentInstance);
+                case ".bblm":
+                    BBLM bblm = new BBLM(buffer, fileName);
+                    return new BBLMEditorForm(bblm, parentInstance);
+                case ".bfg":
+                    BFG bfg = new BFG(buffer, fileName);
+                    return new BFGEditorForm(bfg, parentInstance);
+                case ".bti":
+                case ".btiMat":
+                case ".btiEnv":
+                    BTI bti = new BTI(buffer, fileName);
+                    return new BTIEditorForm(bti, parentInstance);
                 default:
                     return null;
             }

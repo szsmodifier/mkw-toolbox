@@ -10,11 +10,14 @@ namespace BillysToolbox
         public Dictionary<string, string> FileTypes = new Dictionary<string, string>()
         {
             { "SZS Files (*.szs)", "*.szs" },
-            { "ARC Files (*.arc, *.u8)", "*.arc;*.u8" },
+            { "ARC Files (*.arc, *.u8)", "*.arc,*.u8" },
             { "BMM Files (*.bmm)", "*.bmm" },
             { "KMP Files (*.kmp)", "*.kmp" },
             { "BLIGHT Files (*.blight)", "*.blight" },
-            { "BDOF Files (*.bdof_", "*.bdof" },
+            { "BDOF Files (*.bdof)", "*.bdof" },
+            { "BBLM Files (*.bblm)", "*.bblm" },
+            { "BFG Files (*.bfg)", "*.bfg" },
+            { "BTI Files (*.bti)", "*.bti" },
             { "KCL Files (*.kcl)", "*.kcl" },
             { "TPL Files (*.tpl)", "*.tpl" },
             { "BREFF Files (*.breff)", "*.breff" },
@@ -235,6 +238,39 @@ namespace BillysToolbox
         {
             BREFT breft = new BREFT();
             BREFTEditorForm? editor = new(breft);
+            if (editor != null)
+            {
+                editor.MdiParent = this;
+                editor.Show();
+            }
+        }
+
+        private void bBLMToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BBLM bblm = new BBLM();
+            BBLMEditorForm? editor = new(bblm);
+            if (editor != null)
+            {
+                editor.MdiParent = this;
+                editor.Show();
+            }
+        }
+
+        private void bFGToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BFG bfg = new BFG();
+            BFGEditorForm? editor = new(bfg);
+            if (editor != null)
+            {
+                editor.MdiParent = this;
+                editor.Show();
+            }
+        }
+
+        private void bTIToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BTI bti = new BTI();
+            BTIEditorForm? editor = new(bti);
             if (editor != null)
             {
                 editor.MdiParent = this;

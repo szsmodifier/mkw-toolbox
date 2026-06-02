@@ -36,7 +36,7 @@ namespace BillysToolbox.Editors
                 { new List<string> { ".brlyt", "Binary Revolution Layout" }, 1 },
 
                 { new List<string> { ".thp", "THP Movie File" }, 1 },
-                { new List<string> { ".tpl", "Texture Palette Library" }, 1 },
+                { new List<string> { ".tpl", "Texture Palette Library" }, 13 },
 
                 // Resources
                 { new List<string> { ".brres", "Binary Revolution Resource" }, 3 },
@@ -57,9 +57,9 @@ namespace BillysToolbox.Editors
                 { new List<string> { ".kmp", "Mario Kart Wii Map Parameters" }, 2 },
                 { new List<string> { ".krm", "Mario Kart Wii Rumble" }, 1 },
                 { new List<string> { ".bsp", "Binary Settings and Physics" }, 1 },
-                { new List<string> { ".btiEnv", "Binary Texture Information" }, 1 },
-                { new List<string> { ".bti", "Binary Texture Information" }, 1 },
-                { new List<string> { ".btiMat", "Binary Texture Information" }, 1 },
+                { new List<string> { ".btiEnv", "Binary Texture Information" }, 13 },
+                { new List<string> { ".bti", "Binary Texture Information" }, 13 },
+                { new List<string> { ".btiMat", "Binary Texture Information" }, 13 },
                 { new List<string> { ".rkc", "Mario Kart Wii Competition File" }, 1 },
                 { new List<string> { ".rkg", "Mario Kart Wii Ghost File" }, 1 },
                 { new List<string> { ".ikp", "Inverse Kinematics Parameters" }, 1 },
@@ -237,6 +237,8 @@ namespace BillysToolbox.Editors
             Icons.Images.Add("bmm", Properties.Resources.mii);
             Icons.Images.Add("breff", Properties.Resources.flame);
             Icons.Images.Add("breff", Properties.Resources.sparkle);
+            Icons.Images.Add("breff", Properties.Resources.Decal);
+
 
             Icons.ImageSize = new Size(16, 16);
             folderTree.ImageList = Icons;
