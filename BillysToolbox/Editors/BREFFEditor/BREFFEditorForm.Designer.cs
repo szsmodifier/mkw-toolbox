@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BREFFEditorForm));
-            splitter1 = new Splitter();
             splitContainer1 = new SplitContainer();
             fileTreeView = new TreeView();
             propertyGrid = new PropertyGrid();
@@ -39,18 +38,10 @@
             splitContainer1.SuspendLayout();
             SuspendLayout();
             // 
-            // splitter1
-            // 
-            splitter1.Location = new Point(0, 0);
-            splitter1.Name = "splitter1";
-            splitter1.Size = new Size(3, 404);
-            splitter1.TabIndex = 0;
-            splitter1.TabStop = false;
-            // 
             // splitContainer1
             // 
             splitContainer1.Dock = DockStyle.Fill;
-            splitContainer1.Location = new Point(3, 0);
+            splitContainer1.Location = new Point(0, 0);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -60,7 +51,7 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(propertyGrid);
-            splitContainer1.Size = new Size(578, 404);
+            splitContainer1.Size = new Size(581, 404);
             splitContainer1.SplitterDistance = 173;
             splitContainer1.TabIndex = 1;
             // 
@@ -78,7 +69,7 @@
             propertyGrid.Dock = DockStyle.Fill;
             propertyGrid.Location = new Point(0, 0);
             propertyGrid.Name = "propertyGrid";
-            propertyGrid.Size = new Size(401, 404);
+            propertyGrid.Size = new Size(404, 404);
             propertyGrid.TabIndex = 0;
             // 
             // BREFFEditorForm
@@ -87,10 +78,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(581, 404);
             Controls.Add(splitContainer1);
-            Controls.Add(splitter1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "BREFFEditorForm";
-            Text = "Particle Editor";
+            Text = "BREFF Editor";
+            Load += BREFFEditorForm_Load;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -99,8 +90,6 @@
         }
 
         #endregion
-
-        private Splitter splitter1;
         private SplitContainer splitContainer1;
         private TreeView fileTreeView;
         private PropertyGrid propertyGrid;

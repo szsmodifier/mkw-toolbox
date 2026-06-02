@@ -240,6 +240,214 @@
             }
         }
 
+        public class _AnimationTable
+        {
+            public ushort ParticleAnimationCount;
+            public ushort ParticleInitTrackCount;
+            public uint[] ParticleAnimationPointers;
+            public uint[] ParticleAnimationSizes;
+
+            public ushort EmitterAnimationCount;
+            public ushort EmitterInitTrackCount;
+            public uint[] EmitterAnimationPointers;
+            public uint[] EmitterAnimationSizes;
+
+            public List<_Animation> ParticleAnimations;
+            public List<_Animation> EmitterAnimations;
+
+            public _AnimationTable()
+            {
+                ParticleAnimations = new List<_Animation>();
+                EmitterAnimations = new List<_Animation>();
+            }
+
+            public _AnimationTable(EndianReader reader)
+            {
+                long tableStart = reader.Position;
+
+                ParticleAnimationCount = reader.ReadUInt16();
+                ParticleInitTrackCount = reader.ReadUInt16();
+
+                ParticleAnimationPointers = new uint[ParticleAnimationCount];
+                for (int i = 0; i < ParticleAnimationCount; i++)
+                    ParticleAnimationPointers[i] = reader.ReadUInt32();
+
+                ParticleAnimationSizes = new uint[ParticleAnimationCount];
+                for (int i = 0; i < ParticleAnimationCount; i++)
+                    ParticleAnimationSizes[i] = reader.ReadUInt32();
+
+                EmitterAnimationCount = reader.ReadUInt16();
+                EmitterInitTrackCount = reader.ReadUInt16();
+
+                EmitterAnimationPointers = new uint[EmitterAnimationCount];
+                for (int i = 0; i < EmitterAnimationCount; i++)
+                    EmitterAnimationPointers[i] = reader.ReadUInt32();
+
+                EmitterAnimationSizes = new uint[EmitterAnimationCount];
+                for (int i = 0; i < EmitterAnimationCount; i++)
+                    EmitterAnimationSizes[i] = reader.ReadUInt32();
+
+                ParticleAnimations = new List<_Animation>();
+                for (int i = 0; i < ParticleAnimationCount; i++)
+                {
+                    reader.PushPosition();
+                    reader.Position = (int)(tableStart + ParticleAnimationPointers[i]);
+                    ParticleAnimations.Add(new _Animation(reader));
+                    reader.Position = reader.PopPosition();
+                }
+
+                EmitterAnimations = new List<_Animation>();
+                for (int i = 0; i < EmitterAnimationCount; i++)
+                {
+                    reader.PushPosition();
+                    reader.Position = (int)(tableStart + EmitterAnimationPointers[i]);
+                    EmitterAnimations.Add(new _Animation(reader));
+                    reader.Position = reader.PopPosition();
+                }
+            }
+
+            public void Write(EndianWriter writer)
+            {
+                ParticleAnimationCount = (ushort)ParticleAnimations.Count;
+                EmitterAnimationCount = (ushort)EmitterAnimations.Count;
+
+                int headerBlockSize = 2 + 2 + (ParticleAnimationCount * 4) + (ParticleAnimationCount * 4) +
+                                      2 + 2 + (EmitterAnimationCount * 4) + (EmitterAnimationCount * 4);
+
+                ParticleAnimationPointers = new uint[ParticleAnimationCount];
+                ParticleAnimationSizes = new uint[ParticleAnimationCount];
+                EmitterAnimationPointers = new uint[EmitterAnimationCount];
+                EmitterAnimationSizes = new uint[EmitterAnimationCount];
+
+                int currentDataOffset = headerBlockSize;
+
+                for (int i = 0; i < ParticleAnimationCount; i++)
+                {
+                    ParticleAnimationPointers[i] = (uint)currentDataOffset;
+                    uint animSize = (uint)ParticleAnimations[i].SectionSize();
+                    ParticleAnimationSizes[i] = animSize;
+                    currentDataOffset += (int)animSize;
+                }
+
+                for (int i = 0; i < EmitterAnimationCount; i++)
+                {
+                    EmitterAnimationPointers[i] = (uint)currentDataOffset;
+                    uint animSize = (uint)EmitterAnimations[i].SectionSize();
+                    EmitterAnimationSizes[i] = animSize;
+                    currentDataOffset += (int)animSize;
+                }
+
+                writer.WriteUInt16(ParticleAnimationCount);
+                writer.WriteUInt16(ParticleInitTrackCount);
+
+                foreach (uint ptr in ParticleAnimationPointers)
+                    writer.WriteUInt32(ptr);
+                foreach (uint size in ParticleAnimationSizes)
+                    writer.WriteUInt32(size);
+
+                writer.WriteUInt16(EmitterAnimationCount);
+                writer.WriteUInt16(EmitterInitTrackCount);
+
+                foreach (uint ptr in EmitterAnimationPointers)
+                    writer.WriteUInt32(ptr);
+                foreach (uint size in EmitterAnimationSizes)
+                    writer.WriteUInt32(size);
+
+                foreach (_Animation anim in ParticleAnimations)
+                    anim.Write(writer);
+
+                foreach (_Animation anim in EmitterAnimations)
+                    anim.Write(writer);
+            }
+        }
+
+        public class _Animation
+        {
+            public byte Identifier;
+            public byte KindType;
+            public byte CurveFlag;
+            public byte KindEnable;
+            public byte ProcessFlag;
+            public byte LoopCount;
+            public ushort RandomSeed;
+            public ushort FrameCount;
+            public ushort Padding;
+
+            public uint KeyTableSize;
+            public uint RangeTableSize;
+            public uint RandomTableSize;
+            public uint NameTableSize;
+            public uint InfoTableSize;
+
+            public byte[] KeyTableData;
+            public byte[] RangeTableData;
+            public byte[] RandomTableData;
+            public byte[] NameTableData;
+            public byte[] InfoTableData;
+
+            public _Animation(EndianReader reader)
+            {
+                Identifier = reader.ReadByte();
+                KindType = reader.ReadByte();
+                CurveFlag = reader.ReadByte();
+                KindEnable = reader.ReadByte();
+                ProcessFlag = reader.ReadByte();
+                LoopCount = reader.ReadByte();
+                RandomSeed = reader.ReadUInt16();
+                FrameCount = reader.ReadUInt16();
+                Padding = reader.ReadUInt16();
+
+                KeyTableSize = reader.ReadUInt32();
+                RangeTableSize = reader.ReadUInt32();
+                RandomTableSize = reader.ReadUInt32();
+                NameTableSize = reader.ReadUInt32();
+                InfoTableSize = reader.ReadUInt32();
+
+                KeyTableData = reader.ReadBytes((int)KeyTableSize);
+                RangeTableData = reader.ReadBytes((int)RangeTableSize);
+                RandomTableData = reader.ReadBytes((int)RandomTableSize);
+                NameTableData = reader.ReadBytes((int)NameTableSize);
+                InfoTableData = reader.ReadBytes((int)InfoTableSize);
+            }
+
+            public void Write(EndianWriter writer)
+            {
+                writer.WriteByte(Identifier);
+                writer.WriteByte(KindType);
+                writer.WriteByte(CurveFlag);
+                writer.WriteByte(KindEnable);
+                writer.WriteByte(ProcessFlag);
+                writer.WriteByte(LoopCount);
+                writer.WriteUInt16(RandomSeed);
+                writer.WriteUInt16(FrameCount);
+                writer.WriteUInt16(Padding);
+
+                KeyTableSize = (uint)(KeyTableData?.Length ?? 0);
+                RangeTableSize = (uint)(RangeTableData?.Length ?? 0);
+                RandomTableSize = (uint)(RandomTableData?.Length ?? 0);
+                NameTableSize = (uint)(NameTableData?.Length ?? 0);
+                InfoTableSize = (uint)(InfoTableData?.Length ?? 0);
+
+                writer.WriteUInt32(KeyTableSize);
+                writer.WriteUInt32(RangeTableSize);
+                writer.WriteUInt32(RandomTableSize);
+                writer.WriteUInt32(NameTableSize);
+                writer.WriteUInt32(InfoTableSize);
+
+                if (KeyTableSize > 0) writer.WriteBytes(KeyTableData);
+                if (RangeTableSize > 0) writer.WriteBytes(RangeTableData);
+                if (RandomTableSize > 0) writer.WriteBytes(RandomTableData);
+                if (NameTableSize > 0) writer.WriteBytes(NameTableData);
+                if (InfoTableSize > 0) writer.WriteBytes(InfoTableData);
+            }
+
+            public int SectionSize()
+            {
+                int payloadSize = (int)(KeyTableSize + RangeTableSize + RandomTableSize + NameTableSize + InfoTableSize);
+                return 28 + payloadSize;
+            }
+        }
+
         /////////////////////////////
         /////////////////////////////
 
@@ -247,6 +455,7 @@
         public _BlockHeader BlockHeader { get; set; }
         public _ProjectHeader ProjectHeader { get; set; }
         public _Table Table { get; set; }
+        public _AnimationTable AnimationTable { get; set; }
         public string Filename { get; set; }
 
         /// <summary>
@@ -259,6 +468,7 @@
             BlockHeader = new _BlockHeader();
             ProjectHeader = new _ProjectHeader();
             Table = new _Table();
+            AnimationTable = new _AnimationTable();
         }
 
         /// <summary>
@@ -276,6 +486,7 @@
                 BlockHeader = new _BlockHeader(reader);
                 ProjectHeader = new _ProjectHeader(reader);
                 Table = new _Table(reader);
+                AnimationTable = new _AnimationTable(reader);
             }
             finally
             {
@@ -316,7 +527,7 @@
             size = Table.SectionSize();
             foreach (_TableItem item in Table.Entries)
             {
-                item.DataOffset = (ushort)size;
+                item.DataOffset = (uint)size;
                 size += (int)item.DataSize;
             }
         }
@@ -339,6 +550,7 @@
                 BlockHeader.Write(writer);
                 ProjectHeader.Write(writer);
                 Table.Write(writer);
+                AnimationTable.Write(writer);
             }
             finally
             {

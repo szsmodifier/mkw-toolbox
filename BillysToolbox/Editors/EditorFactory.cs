@@ -50,6 +50,9 @@ namespace BillysToolbox.Editors
                 case ".breff":
                     BREFF breff = new BREFF(buffer, fileName);
                     return new BREFFEditorForm(breff, parentInstance);
+                case ".breft":
+                    BREFT breft = new BREFT(buffer, fileName);
+                    return new BREFTEditorForm(breft, parentInstance);
                 default:
                     return null;
             }

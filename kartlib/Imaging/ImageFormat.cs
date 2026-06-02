@@ -16,21 +16,31 @@ namespace kartlib.Imaging
 
         private byte[]? SortBlocks(byte[] buffer, int width, int height, byte[]? paletteData, TPL._PaletteHeader.PaletteFormat? paletteFormat)
         {
-            uint[]? formattedBuffer = DecodePixels(buffer);
+            uint[]? formattedBuffer = DecodePixels(buffer, paletteData, paletteFormat);
             if (formattedBuffer == null)
                 return null;
 
-            List<byte> result = new List<byte>();
-            for(int y = 0; y < height; y++)
-            {
-                for(int x = 0; x < width; x++)
-                {
-                    // crazy math!!
-                    int a = (int)Math.Floor((double)x / BlockWidth) * BlockWidth * BlockHeight + (x % BlockWidth);
-                    int b = y * BlockWidth + a;
-                    int c = (int)Math.Floor((double)y / BlockHeight) * BlockWidth * BlockHeight * (width / BlockWidth - 1) + b;
+            int blocksAcross = (int)Math.Ceiling((double)width / BlockWidth);
 
-                    result.AddRange( BitConverter.GetBytes(formattedBuffer[c]) );
+            List<byte> result = new List<byte>(width * height * 4);
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int blockX = x / BlockWidth;
+                    int blockY = y / BlockHeight;
+                    int blockIndex = (blockY * blocksAcross) + blockX;
+
+                    int blockStart = blockIndex * (BlockWidth * BlockHeight);
+
+                    int inBlockX = x % BlockWidth;
+                    int inBlockY = y % BlockHeight;
+                    int inBlockOffset = (inBlockY * BlockWidth) + inBlockX;
+
+                    int c = blockStart + inBlockOffset;
+
+                    result.AddRange(BitConverter.GetBytes(formattedBuffer[c]));
                 }
             }
 
@@ -113,7 +123,7 @@ namespace kartlib.Imaging
             return result;
         }
 
-        public byte[]? FromBitmap(Bitmap bitmap)
+        public byte[]? FromBitmap(Bitmap bitmap, TPL._PaletteHeader.PaletteFormat? paletteFormat = null)
         {
             int width = (int)Math.Ceiling((double)bitmap.Width / BlockWidth) * BlockWidth;
             int height = (int)Math.Ceiling((double)bitmap.Height / BlockHeight) * BlockHeight;
@@ -154,7 +164,7 @@ namespace kartlib.Imaging
                 }
             }
 
-            return EncodePixels(swizzledPixels);
+            return EncodePixels(swizzledPixels, paletteFormat);
         }
 
         protected virtual byte[] EncodePixels(uint[] pixels, TPL._PaletteHeader.PaletteFormat? paletteFormat = null) { return Array.Empty<byte>(); }

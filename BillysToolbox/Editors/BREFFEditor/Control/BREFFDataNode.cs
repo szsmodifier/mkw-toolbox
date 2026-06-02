@@ -17,13 +17,25 @@ namespace ParticleEditor.Control
         public BREFFDataNode(BREFF breff) : base(Path.GetFileName(breff.ProjectHeader.Name))
         {
             this.Breff = breff;
+            SetImage("folder");
 
-            // Add subfile nodes
-            foreach(BREFF._TableItem item in Breff.Table.Entries)
+            foreach (BREFF._TableItem item in Breff.Table.Entries)
             {
                 SubfileDataNode subfileNode = new SubfileDataNode(item);
                 AddChild(subfileNode);
             }
+
+            if (Breff.AnimationTable.ParticleAnimations.Count <= 0) return;
+
+            DataNode particleAnimsFolder = new DataNode("Particle Animations");
+            particleAnimsFolder.SetImage("folder");
+
+            for (int i = 0; i < Breff.AnimationTable.ParticleAnimations.Count; i++)
+            {
+                particleAnimsFolder.AddChild(new AnimationDataNode(Breff.AnimationTable.ParticleAnimations[i], $"Animation {i}"));
+            }
+
+            AddChild(particleAnimsFolder);
         }
     }
 }

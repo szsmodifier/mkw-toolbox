@@ -25,7 +25,7 @@ namespace BillysToolbox.Editors
             FileTypes = new Dictionary<List<string>, int>()
             {
                 // Effects
-                { new List<string> { ".breft", "Binary Revolution Effect Texture Project" }, 1 },
+                { new List<string> { ".breft", "Binary Revolution Effect Texture Project" }, 12 },
                 { new List<string> { ".breff", "Binary Revolution Effect Project" }, 11 },
 
                 // Menu files
@@ -236,6 +236,8 @@ namespace BillysToolbox.Editors
             Icons.Images.Add("bblm", Properties.Resources.bblm);
             Icons.Images.Add("bmm", Properties.Resources.mii);
             Icons.Images.Add("breff", Properties.Resources.flame);
+            Icons.Images.Add("breff", Properties.Resources.sparkle);
+
             Icons.ImageSize = new Size(16, 16);
             folderTree.ImageList = Icons;
             fileListView.SmallImageList = Icons;

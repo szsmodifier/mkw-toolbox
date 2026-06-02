@@ -32,6 +32,9 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
             u8ArchiveToolStripMenuItem = new ToolStripMenuItem();
+            particleEffectToolStripMenuItem = new ToolStripMenuItem();
+            bREFFToolStripMenuItem = new ToolStripMenuItem();
+            bREFTToolStripMenuItem = new ToolStripMenuItem();
             postEffectToolStripMenuItem = new ToolStripMenuItem();
             bLIGHTToolStripMenuItem1 = new ToolStripMenuItem();
             bDOFToolStripMenuItem1 = new ToolStripMenuItem();
@@ -74,7 +77,7 @@
             // 
             // newToolStripMenuItem
             // 
-            newToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { u8ArchiveToolStripMenuItem, postEffectToolStripMenuItem, kMPToolStripMenuItem, kCLToolStripMenuItem, bMMToolStripMenuItem, tPLToolStripMenuItem });
+            newToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { u8ArchiveToolStripMenuItem, particleEffectToolStripMenuItem, postEffectToolStripMenuItem, kMPToolStripMenuItem, kCLToolStripMenuItem, bMMToolStripMenuItem, tPLToolStripMenuItem });
             newToolStripMenuItem.Image = Properties.Resources.page_white_add;
             newToolStripMenuItem.Name = "newToolStripMenuItem";
             newToolStripMenuItem.Size = new Size(184, 26);
@@ -88,13 +91,37 @@
             u8ArchiveToolStripMenuItem.Text = "U8 Archive";
             u8ArchiveToolStripMenuItem.Click += u8ArchiveToolStripMenuItem_Click;
             // 
+            // particleEffectToolStripMenuItem
+            // 
+            particleEffectToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { bREFFToolStripMenuItem, bREFTToolStripMenuItem });
+            particleEffectToolStripMenuItem.Image = Properties.Resources.flame;
+            particleEffectToolStripMenuItem.Name = "particleEffectToolStripMenuItem";
+            particleEffectToolStripMenuItem.Size = new Size(184, 26);
+            particleEffectToolStripMenuItem.Text = "Particle Effect";
+            // 
+            // bREFFToolStripMenuItem
+            // 
+            bREFFToolStripMenuItem.Image = Properties.Resources.flame;
+            bREFFToolStripMenuItem.Name = "bREFFToolStripMenuItem";
+            bREFFToolStripMenuItem.Size = new Size(184, 26);
+            bREFFToolStripMenuItem.Text = "BREFF";
+            bREFFToolStripMenuItem.Click += bREFFToolStripMenuItem_Click;
+            // 
+            // bREFTToolStripMenuItem
+            // 
+            bREFTToolStripMenuItem.Image = Properties.Resources.sparkle;
+            bREFTToolStripMenuItem.Name = "bREFTToolStripMenuItem";
+            bREFTToolStripMenuItem.Size = new Size(184, 26);
+            bREFTToolStripMenuItem.Text = "BREFT";
+            bREFTToolStripMenuItem.Click += bREFTToolStripMenuItem_Click;
+            // 
             // postEffectToolStripMenuItem
             // 
             postEffectToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { bLIGHTToolStripMenuItem1, bDOFToolStripMenuItem1, bBLMToolStripMenuItem, bFGToolStripMenuItem, bLMAPToolStripMenuItem });
             postEffectToolStripMenuItem.Image = Properties.Resources.camera;
             postEffectToolStripMenuItem.Name = "postEffectToolStripMenuItem";
             postEffectToolStripMenuItem.Size = new Size(184, 26);
-            postEffectToolStripMenuItem.Text = "Post-Effect";
+            postEffectToolStripMenuItem.Text = "Post Effect";
             // 
             // bLIGHTToolStripMenuItem1
             // 
@@ -371,5 +398,8 @@
         private ToolStripMenuItem toolsToolStripMenuItem;
         private ToolStripMenuItem nImageScalerToolStripMenuItem;
         private ToolStripMenuItem tPLToolStripMenuItem;
+        private ToolStripMenuItem particleEffectToolStripMenuItem;
+        private ToolStripMenuItem bREFFToolStripMenuItem;
+        private ToolStripMenuItem bREFTToolStripMenuItem;
     }
 }

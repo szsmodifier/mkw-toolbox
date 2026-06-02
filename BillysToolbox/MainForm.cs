@@ -219,5 +219,27 @@ namespace BillysToolbox
                 editor.Show();
             }
         }
+
+        private void bREFFToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BREFF breff = new BREFF();
+            BREFFEditorForm? editor = new(breff);
+            if (editor != null)
+            {
+                editor.MdiParent = this;
+                editor.Show();
+            }
+        }
+
+        private void bREFTToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BREFT breft = new BREFT();
+            BREFTEditorForm? editor = new(breft);
+            if (editor != null)
+            {
+                editor.MdiParent = this;
+                editor.Show();
+            }
+        }
     }
 }
