@@ -27,6 +27,122 @@
         public enum CompressionAlgorithm
         {
             Fast = 0,
+            Optimal = 1
+        }
+
+        public static byte[] Compress(byte[] data, CompressionAlgorithm algorithm = CompressionAlgorithm.Optimal)
+        {
+            switch (algorithm)
+            {
+                case CompressionAlgorithm.Fast:
+                    return FastEncode(data);
+                case CompressionAlgorithm.Optimal:
+                default:
+                    return OptimalEncode(data);
+            }
+        }
+
+        private static byte[] OptimalEncode(byte[] data)
+        {
+            MemoryStream stream = new MemoryStream();
+            EndianWriter writer = new EndianWriter(stream, Endianness.BigEndian);
+
+            try
+            {
+                _Header.Write(writer, (uint)data.Length);
+
+                int position = 0;
+                byte chunkCode = 0;
+                int bitsLeft = 8;
+
+                // Max size of 8 commands is 8 * 3 bytes = 24 bytes
+                byte[] chunkData = new byte[24];
+                int chunkDataIdx = 0;
+
+                while (position < data.Length)
+                {
+                    Search(data, position, out int matchOffset, out int matchLength);
+                    if (matchLength >= 3)
+                    {
+                        Search(data, position + 1, out int nextMatchOffset, out int nextMatchLength);
+                        if (nextMatchLength >= matchLength + 2)
+                        {
+                            matchLength = 1;
+                        }
+                    }
+
+                    if (matchLength < 3)
+                    {
+                        chunkCode |= (byte)(1 << (bitsLeft - 1));
+                        chunkData[chunkDataIdx++] = data[position];
+                        position++;
+                    }
+                    else
+                    {
+                        if (matchLength > 17)
+                        {
+                            chunkData[chunkDataIdx++] = (byte)((matchOffset - 1) >> 8);
+                            chunkData[chunkDataIdx++] = (byte)((matchOffset - 1) & 0xFF);
+                            chunkData[chunkDataIdx++] = (byte)(matchLength - 18);
+                        }
+                        else
+                        {
+                            chunkData[chunkDataIdx++] = (byte)(((matchLength - 2) << 4) | ((matchOffset - 1) >> 8));
+                            chunkData[chunkDataIdx++] = (byte)((matchOffset - 1) & 0xFF);
+                        }
+                        position += matchLength;
+                    }
+
+                    bitsLeft--;
+
+                    if (bitsLeft == 0 || position >= data.Length)
+                    {
+                        writer.WriteByte(chunkCode);
+                        for (int i = 0; i < chunkDataIdx; i++)
+                        {
+                            writer.WriteByte(chunkData[i]);
+                        }
+
+                        chunkCode = 0;
+                        chunkDataIdx = 0;
+                        bitsLeft = 8;
+                    }
+                }
+            }
+            finally
+            {
+                stream.Close();
+                writer.Close();
+            }
+
+            return stream.ToArray();
+        }
+
+        private static void Search(byte[] data, int position, out int matchOffset, out int matchLength)
+        {
+            matchLength = 0;
+            matchOffset = 0;
+
+            int startPos = position - 0x1000;
+            if (startPos < 0) startPos = 0;
+
+            int maxMatchLen = data.Length - position;
+            if (maxMatchLen > 0x111) maxMatchLen = 0x111;
+
+            for (int i = startPos; i < position; i++)
+            {
+                int currentMatchLen = 0;
+                while (currentMatchLen < maxMatchLen && data[i + currentMatchLen] == data[position + currentMatchLen])
+                {
+                    currentMatchLen++;
+                }
+
+                if (currentMatchLen > matchLength)
+                {
+                    matchLength = currentMatchLen;
+                    matchOffset = position - i;
+                }
+            }
         }
 
         public static byte[] Decompress(byte[] buffer)
@@ -80,17 +196,6 @@
             }
         }
 
-        public static byte[] Compress(byte[] data, CompressionAlgorithm algorithm)
-        {
-            switch (algorithm)
-            {
-                case CompressionAlgorithm.Fast:
-                    return FastEncode(data);
-                default:
-                    return FastEncode(data);
-            }
-        }
-
         private static byte[] FastEncode(byte[] buffer)
         {
             MemoryStream stream = new MemoryStream();
@@ -100,19 +205,19 @@
                 _Header.Write(writer, (uint)buffer.Length);
 
                 int counter = 0;
-                for(int i = 0; i < buffer.Length; counter--)
+                for (int i = 0; i < buffer.Length;)
                 {
-                    if(counter == 0)
+                    if (counter == 0)
                     {
                         writer.WriteByte(0xFF);
                         counter = 8;
                     }
                     writer.WriteByte(buffer[i++]);
+                    counter--;
                 }
             }
             finally
             {
-
                 stream.Close();
                 writer.Close();
             }
