@@ -7,7 +7,7 @@ Wii file editor inspired by [Wexos's Toolbox](https://wiki.tockdom.com/wiki/Wexo
 | File Type | Can Open | Can Save |
 |---|---|---|
 | U8 | Yes | Yes |
-| SZS* | Yes | With no compression |
+| SZS | Yes | Yes |
 | BMM | Yes | Yes |
 | KMP | Yes | Yes |
 | KCL | Yes | Yes |
