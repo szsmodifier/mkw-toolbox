@@ -86,18 +86,23 @@ namespace BillysToolbox.Editors
             InitializeComponent();
         }
 
-        public void Save()
+        public async void Save()
         {
             if (!File.Exists(FileInstance.Filename))
             {
                 SaveAs();
                 return;
             }
+            
+            try {
+                byte[] buffer = FileInstance.Write();
 
-            byte[] buffer = FileInstance.Write();
-            if (Compressed) buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Optimal);
-            try { 
-                File.WriteAllBytes(FileInstance.Filename, buffer);
+                await Task.Run(() =>
+                {
+                    if (Compressed)
+                        buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Optimal);
+                    File.WriteAllBytes(FileInstance.Filename, buffer);
+                });
             }
             catch(Exception e)
             {
@@ -105,7 +110,7 @@ namespace BillysToolbox.Editors
             }
 }
 
-        public void SaveAs()
+        public async void SaveAs()
         {
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
@@ -114,12 +119,16 @@ namespace BillysToolbox.Editors
 
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    byte[] buffer = FileInstance.Write();
-                    if (sfd.FilterIndex == 1)
-                        buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Optimal);
                     try
                     {
-                        File.WriteAllBytes(sfd.FileName, buffer);
+                        byte[] buffer = FileInstance.Write();
+
+                        await Task.Run(() =>
+                        {
+                            if (sfd.FilterIndex == 1)
+                                buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Optimal);
+                            File.WriteAllBytes(sfd.FileName, buffer);
+                        });
                     }
                     catch(Exception e)
                     {
