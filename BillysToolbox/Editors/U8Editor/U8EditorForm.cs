@@ -95,7 +95,7 @@ namespace BillysToolbox.Editors
             }
 
             byte[] buffer = FileInstance.Write();
-            if (Compressed) buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Fast);
+            if (Compressed) buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Optimal);
             try { 
                 File.WriteAllBytes(FileInstance.Filename, buffer);
             }
@@ -116,7 +116,7 @@ namespace BillysToolbox.Editors
                 {
                     byte[] buffer = FileInstance.Write();
                     if (sfd.FilterIndex == 1)
-                        buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Fast);
+                        buffer = YAZ0.Compress(buffer, YAZ0.CompressionAlgorithm.Optimal);
                     try
                     {
                         File.WriteAllBytes(sfd.FileName, buffer);
